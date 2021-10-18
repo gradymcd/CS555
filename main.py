@@ -78,7 +78,11 @@ def checkGed(filePath, debug=False):
 		date = datetime.now()
 		
 		if(tag == 'DATE'):
-			date = datetime.strptime(args[0] + args[1] + args[2], '%d%b%Y')
+			try:
+				date = datetime.strptime(args[0] + args[1] + args[2], '%d%b%Y')
+			except ValueError:
+                print('ERROR: US42: Invalid date on line {}. ({})\n'.format(lineCount, args))
+                break
 			if(date > datetime.now()):
 				res += 'ERROR US01 on line ' + str(lineI) + ': Dates (birth, marriage, divorce, death) should not be after the current date'
 				if(debug):
