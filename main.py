@@ -1,6 +1,7 @@
 from datetime import datetime
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
+import US23
 
 TagLevels = {
 	"INDI": 0,
@@ -35,19 +36,16 @@ def checkGed(filePath, debug=False):
 	dateType = ""
 	alive = True
 	type = None
+	individualIds = []
+	familyIds = []
 	
-
-	def printLine():
-		print(level + '|' + tag + '|' + valid + '|', end='')
-		for arg in args:
-			print(arg, end=' ')
-		print()
+	if(not US23.UniqueNameBirthdate(filePath)):
+		print('Error US23: No more than one individual with the same name and birth date should appear in a GEDCOM file')
 		
 	file = open(filePath, 'r')
 	res = ''
 	lines = file.readlines()
-	areErrors = False
-
+	
 	for line in lines:
 		lineI += 1
 		line = line.replace('\n', ' ')
@@ -59,10 +57,16 @@ def checkGed(filePath, debug=False):
 			args = [elems[1]]
 			curID = args[0]
 			if("INDI" in elems):
+				if(curID in individualIds):
+					print( 'Error US22: Duplicate individual ID ({}) on line {}.'.format(curID, lineI))
+				individualIds.append(curID)
 				indis[curID] = {}
 				alive = True
 				type = 'I'
 			if('FAM' in elems):
+				if(curID in familyIds):
+					print('Error US22: Duplicate family ID ({}) on line {}.'.format(curID, lineI))
+				familyIds.append(curID)
 				type = 'F'
 				fams[curID] = {}
 				married = False
@@ -81,13 +85,11 @@ def checkGed(filePath, debug=False):
 			try:
 				date = datetime.strptime(args[0] + args[1] + args[2], '%d%b%Y')
 			except ValueError:
-				print('ERROR: US42: Invalid date on line {}. ({})\n'.format(lineCount, args))
+				print('ERROR: US42: Invalid date on line {}.\n'.format(lineI))
+				date = None
 				break
 			if(date > datetime.now()):
-				res += 'ERROR US01 on line ' + str(lineI) + ': Dates (birth, marriage, divorce, death) should not be after the current date'
-				if(debug):
-					printLine()
-				areErrors = True
+				res += 'ERROR US01 on line ' + str(lineI) + ': Dates (birth, marriage, divorce, death) should not be after the current date\n'
 			
 		if(type == 'I'):
 			if(tag == 'NAME'):
@@ -96,9 +98,18 @@ def checkGed(filePath, debug=False):
 				indis[curID]['Gender'] = args[0]
 			if(tag == 'BIRT'):
 				dateType = 'BIRT'
+				indis[curID]['Birthday'] = 'N/A'
+				indis[curID]['Age'] = 'N/A'
 			if(dateType == 'BIRT' and tag == 'DATE'):
-				indis[curID]['Birthday'] = date.strftime("%Y-%m-%d")
-				indis[curID]['Age'] = relativedelta(datetime.now(), date).years
+				if(date == None):
+					indis[curID]['Birthday'] = 'N/A'
+					indis[curID]['Age'] = 'N/A'
+				else:	
+					indis[curID]['Birthday'] = date.strftime("%Y-%m-%d")
+					indis[curID]['Age'] = relativedelta(datetime.now(), date).years
+					if (indis[curID]['Age']) >= 150:
+						print("Error US07: on line " + str(lineI) + ", there should not be a person alive after 150 years")
+                
 			if(tag == 'DEAT'):
 				if args[0] == 'Y':
 					alive = False
@@ -160,3 +171,4 @@ def checkGed(filePath, debug=False):
 if __name__ == '__main__':
 	file = input('File: ')
 	print(checkGed(file))
+	input()
