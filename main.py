@@ -176,10 +176,8 @@ def checkGed(filePath, debug=False):
 	res += 'Siblings:\n'
 	for p, cs in siblings.items():
 		if(cs != [] and len(cs) > 1):
-			print(cs, len(cs))
 			for i in range(len(cs)):
 				cs[i] = indis[cs[i]]
-				print(cs[i])
 			for v in sorted(cs, key=lambda x : x['Age'], reverse=True):
 				res += v['Name'] + '(' + str(v['Age']) + ')   '
 			res += '\n'
