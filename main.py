@@ -1,7 +1,7 @@
 from datetime import datetime
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
-import US23
+import US23, US38
 
 TagLevels = {
 	"INDI": 0,
@@ -157,13 +157,22 @@ def checkGed(filePath, debug=False):
 		for childID in val['Children']:
 			indis[childID]['Child'] = key
 		
-		
+	upcomingBirthdays = []
 	indiTable = PrettyTable()
 	indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
 	for key, val in indis.items():
 		indiTable.add_row([key, val['Name'], val['Gender'], val['Birthday'], val['Age'], val['Alive'], val['Death'], val['Child'], val['Spouse']])
+		if (val['Alive'] and US38.checkUpcomingBirthday(val['Birthday'])):
+			upcomingBirthdays.append(val['Name'])
 
 	res += indiTable.get_string() + '\n' + famTable.get_string()
+
+	if not upcomingBirthdays:
+		res += '\n' + "No upcoming birthdays"
+	else:
+		res += '\n' + "Upcoming birthdays: "
+		for n in upcomingBirthdays:
+			res += n + " "
 
 	file.close()
 	return res
