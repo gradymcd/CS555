@@ -38,6 +38,8 @@ def checkGed(filePath, debug=False):
 	type = None
 	individualIds = []
 	familyIds = []
+	siblings = {}
+	marriages = []
 	
 	if(not US23.UniqueNameBirthdate(filePath)):
 		print('Error US23: No more than one individual with the same name and birth date should appear in a GEDCOM file')
@@ -63,6 +65,7 @@ def checkGed(filePath, debug=False):
 				indis[curID] = {}
 				alive = True
 				type = 'I'
+				siblings[curID] = []
 			if('FAM' in elems):
 				if(curID in familyIds):
 					print('Error US22: Duplicate family ID ({}) on line {}.'.format(curID, lineI))
@@ -135,12 +138,14 @@ def checkGed(filePath, debug=False):
 			if(tag == 'HUSB'):
 				fams[curID]['Husband ID'] = args[0]
 				fams[curID]['Husband Name'] = indis[args[0]]['Name']
-				
+				marriages.append(args[0])
 			if(tag == 'WIFE'):
 				fams[curID]['Wife ID'] = args[0]
 				fams[curID]['Wife Name'] = indis[args[0]]['Name']
+				marriages.append(args[0])
 			if(tag == 'CHIL'):
 				children.append(args[0])
+				siblings[fams[curID]['Wife ID']].append(args[0])
 			fams[curID]['Children'] = children
 			if(not married):
 				fams[curID]['Married'] = 'NA'
@@ -164,9 +169,26 @@ def checkGed(filePath, debug=False):
 		indiTable.add_row([key, val['Name'], val['Gender'], val['Birthday'], val['Age'], val['Alive'], val['Death'], val['Child'], val['Spouse']])
 		if (val['Alive'] and US38.checkUpcomingBirthday(val['Birthday'])):
 			upcomingBirthdays.append(val['Name'])
-
-	res += indiTable.get_string() + '\n' + famTable.get_string()
-
+			
+	
+	res += indiTable.get_string() + '\n' + famTable.get_string() + '\n'
+	
+	res += 'Siblings:\n'
+	for p, cs in siblings.items():
+		if(cs != [] and len(cs) > 1):
+			print(cs, len(cs))
+			for i in range(len(cs)):
+				cs[i] = indis[cs[i]]
+				print(cs[i])
+			for v in sorted(cs, key=lambda x : x['Age'], reverse=True):
+				res += v['Name'] + '(' + str(v['Age']) + ')   '
+			res += '\n'
+				
+	res += '\nLiving married: \n'
+	for id in marriages:
+		if(indis[id]['Alive']):
+			res += indis[id]['Name'] + '\n'
+			
 	if not upcomingBirthdays:
 		res += '\n' + "No upcoming birthdays"
 	else:
