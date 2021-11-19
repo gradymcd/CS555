@@ -5,7 +5,10 @@ from dateutil.relativedelta import relativedelta
 # US38
 def checkUpcomingBirthday(datestring):
     birthdate = datetime.strptime(datestring, "%Y-%m-%d")
-    birthdate = date(datetime.now().year, birthdate.month, birthdate.day)
+    try:
+        birthdate = date(datetime.now().year, birthdate.month, birthdate.day)
+    except:
+        birthdate = date(datetime.now().year, birthdate.month, birthdate.day-1)
     d = relativedelta(birthdate, datetime.now()).days
     m = relativedelta(birthdate, datetime.now()).months
     if 0 <= d <= 30 and m == 0:
