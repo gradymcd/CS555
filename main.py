@@ -161,6 +161,17 @@ def checkGed(filePath, debug=False):
 		indis[val['Wife ID']]['Spouse'] = key
 		for childID in val['Children']:
 			indis[childID]['Child'] = key
+		if (val['Married'] != 'NA'):
+			marriedday = datetime.strptime(val['Married'], "%Y-%m-%d")
+			if (indis[val['Husband ID']]['Birthday'] != 'N/A'):
+				hbirthday = datetime.strptime(indis[val['Husband ID']]['Birthday'], "%Y-%m-%d")
+				if hbirthday < marriedday: 
+					print('Error: US02: Individual {} has married before their birthdate.'.format(val['Husband ID']))
+			if (indis[val['Wife ID']]['Birthday'] != 'N/A'):
+				wbirthday = datetime.strptime(indis[val['Wife ID']]['Birthday'], "%Y-%m-%d")
+				if wbirthday < marriedday:
+					print('Error: US02: Individual {} has married before their birthdate.'.format(val['Wife ID']))
+
 		
 	upcomingBirthdays = []
 	indiTable = PrettyTable()
@@ -169,6 +180,11 @@ def checkGed(filePath, debug=False):
 		indiTable.add_row([key, val['Name'], val['Gender'], val['Birthday'], val['Age'], val['Alive'], val['Death'], val['Child'], val['Spouse']])
 		if (val['Alive'] and US38.checkUpcomingBirthday(val['Birthday'])):
 			upcomingBirthdays.append(val['Name'])
+		if (val['Death'] != 'NA' and val['Birthday'] != 'N/A'):
+			deathdate = datetime.strptime(val['Death'], "%Y-%m-%d")
+			birthdate = datetime.strptime(val['Birthday'], "%Y-%m-%d")
+			if (deathdate < birthdate):
+				print('Error: US03: Individual {} has their death before their birthday. '.format(key))
 			
 	
 	res += indiTable.get_string() + '\n' + famTable.get_string() + '\n'
