@@ -1,7 +1,7 @@
 from datetime import datetime
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
-import US23, US38, US12, US11
+import US23, US38, US12, US11, US31
 
 TagLevels = {
 	"INDI": 0,
@@ -202,6 +202,10 @@ def checkGed(filePath, debug=False):
 	for id in marriages:
 		if(indis[id]['Alive']):
 			res += indis[id]['Name'] + '\n'
+
+	res += '\nLiving single: \n'
+	for name in US31.listLivingSingle(indis):
+		res += name + '\n'
 			
 	if not upcomingBirthdays:
 		res += '\n' + "No upcoming birthdays"
