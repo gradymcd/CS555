@@ -218,7 +218,7 @@ def checkGed(filePath, debug=False):
 	US21.corrGen(indis, fams)		
 	US08.NoBirthBeforeParentsMarried(indis, fams)
 	US09.BirthBeforeDeathOfParents(indis, fams)
-	US12.ParentsTooOld(indis, fams)
+	US12.ParentsNotTooOld(indis, fams)
 	US11.CheckBigamy(indis, fams)
 	
 
