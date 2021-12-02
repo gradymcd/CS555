@@ -1,7 +1,7 @@
 from datetime import datetime
 from prettytable import PrettyTable
 from dateutil.relativedelta import relativedelta
-import US23, US38, US12, US11, US31, US21
+import US23, US38, US12, US11, US08, US09, US31, US21
 
 TagLevels = {
 	"INDI": 0,
@@ -133,6 +133,7 @@ def checkGed(filePath, debug=False):
 			if(tag == 'DIV'):
 				fams[curID]['Divorced'] = 'NA'
 				divorced = True
+				married = False
 			if(divorced and tag == 'DATE'):
 				fams[curID]['Divorced'] = date.strftime("%Y-%m-%d")
 			if(tag == 'HUSB'):
@@ -147,8 +148,8 @@ def checkGed(filePath, debug=False):
 				children.append(args[0])
 				siblings[fams[curID]['Wife ID']].append(args[0])
 			fams[curID]['Children'] = children
-			if(not married):
-				fams[curID]['Married'] = 'NA'
+			#if(not married):
+			#	fams[curID]['Married'] = 'NA'
 			if(not divorced):
 				fams[curID]['Divorced'] = 'NA'
 			
@@ -165,11 +166,11 @@ def checkGed(filePath, debug=False):
 			marriedday = datetime.strptime(val['Married'], "%Y-%m-%d")
 			if (indis[val['Husband ID']]['Birthday'] != 'N/A'):
 				hbirthday = datetime.strptime(indis[val['Husband ID']]['Birthday'], "%Y-%m-%d")
-				if hbirthday < marriedday: 
+				if hbirthday > marriedday: 
 					print('Error: US02: Individual {} has married before their birthdate.'.format(val['Husband ID']))
 			if (indis[val['Wife ID']]['Birthday'] != 'N/A'):
 				wbirthday = datetime.strptime(indis[val['Wife ID']]['Birthday'], "%Y-%m-%d")
-				if wbirthday < marriedday:
+				if wbirthday > marriedday:
 					print('Error: US02: Individual {} has married before their birthdate.'.format(val['Wife ID']))
 
 		
@@ -215,8 +216,11 @@ def checkGed(filePath, debug=False):
 			res += n + " "
 
 	US21.corrGen(indis, fams)		
+	US08.NoBirthBeforeParentsMarried(indis, fams)
+	US09.BirthBeforeDeathOfParents(indis, fams)
 	US12.ParentsTooOld(indis, fams)
 	US11.CheckBigamy(indis, fams)
+	
 
 	file.close()
 	return res
