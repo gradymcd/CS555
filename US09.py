@@ -59,22 +59,22 @@ class TestUS09(unittest.TestCase):
 		print('test01:')
 		self.assertTrue(BirthBeforeDeathOfParents(self.indis, self.fams))
 	def test02(self):
-		print('test02:')
+		print('\ntest02:')
 		indis = copy.deepcopy(self.indis)
 		indis['I1']['Birthday'] = '2022-01-01'
 		self.assertFalse(BirthBeforeDeathOfParents(indis, self.fams))
 	def test03(self):
-		print('test03:')
+		print('\ntest03:')
 		indis = copy.deepcopy(self.indis)
 		indis['I2']['Death'] = '2019-03-01'
 		self.assertFalse(BirthBeforeDeathOfParents(indis, self.fams))
 	def test04(self):
-		print('test04:')
+		print('\ntest04:')
 		indis = copy.deepcopy(self.indis)
 		indis['I3']['Death'] = '2019-12-31'
 		self.assertFalse(BirthBeforeDeathOfParents(indis, self.fams))
 	def test05(self):
-		print('test05:')
+		print('\ntest05:')
 		indis = copy.deepcopy(self.indis)
 		indis['I4']['Birthday'] = '2021-01-02'
 		self.assertFalse(BirthBeforeDeathOfParents(indis, self.fams))

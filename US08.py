@@ -54,17 +54,17 @@ class TestUS08(unittest.TestCase):
 		print('test01:')
 		self.assertTrue(NoBirthBeforeParentsMarried(self.indis, self.fams))
 	def test02(self):
-		print('test02:')
+		print('\ntest02:')
 		fams = copy.deepcopy(self.fams)
 		fams['F1']['Married'] = '2021-01-02'
 		self.assertFalse(NoBirthBeforeParentsMarried(self.indis, fams))
 	def test03(self):
-		print('test03:')
+		print('\ntest03:')
 		fams = copy.deepcopy(self.fams)
 		fams['F1']['Divorced'] = '2020-01-01'
 		self.assertFalse(NoBirthBeforeParentsMarried(self.indis, fams))
 	def test04(self):
-		print('test04:')
+		print('\ntest04:')
 		indis = copy.deepcopy(self.indis)
 		indis['I2']['Birthday'] = '2019-01-01'
 		self.assertFalse(NoBirthBeforeParentsMarried(indis, self.fams))
